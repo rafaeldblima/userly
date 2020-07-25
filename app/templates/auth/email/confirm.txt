@@ -1,0 +1,13 @@
+Olá {{ user.username }},
+
+Bem-vindo ao Userly!
+
+Para confirmar sua conta clique no link abaixo:
+
+{{ url_for('auth.confirm', token=token, _external=True) }}
+
+Cordialmente,
+
+The Userly Team
+
+Obs: respostas para esse endereço de e-mail não são monitoradas.

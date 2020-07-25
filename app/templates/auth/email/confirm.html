@@ -1,0 +1,8 @@
+<p>Olá {{ user.username }},</p>
+<p>Bem-vindo ao <b>Userly</b>!</p>
+<p>Para confirmar sua conta <a href="{{ url_for('auth.confirm', token=token, _external=True) }}">clique aqui</a>.</p>
+<p>Ou, você pode colar o link a seguir no seu navegador:</p>
+<p>{{ url_for('auth.confirm', token=token, _external=True) }}</p>
+<p>Cordialmente,</p>
+<p>The Userly Team</p>
+<p><small>Obs: respostas para esse endereço de e-mail não são monitoradas.</small></p>

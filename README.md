@@ -38,7 +38,11 @@ pipenv install
 pipenv shell
 make run
 ```
-4. No navegador acesse: http://127.0.0.1:5000/
+4. Rode as migrations:
+```bash
+make migrate
+```
+5. No navegador acesse: http://127.0.0.1:5000/
 
 #### Docker 
 1. Ter instalado docker e docker-compose
@@ -67,3 +71,13 @@ http --json --auth <email>:<password> GET  http://127.0.0.1:5000/api/v1/users/1
 ```virtualenv
 http --auth <email>:<password> --json POST http://127.0.0.1:5000/api/v1/tokens/
 ```
+
+#### Flask-migrate commands
+##### Iniciar migrate
+- flask db init
+##### Criar migration
+- flask db migrate -m "initial migration"
+##### Aplicar migration
+- flask db upgrade
+##### Remover migration (última)
+- flask db downgrade

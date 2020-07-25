@@ -1,0 +1,7 @@
+<p>Olá {{ user.username }},</p>
+<p>Para confirmar seu novo endereço de e-mail <a href="{{ url_for('auth.change_email', token=token, _external=True) }}">clique aqui</a>.</p>
+<p>Ou, você pode colar o link a seguir no seu navegador:</p>
+<p>{{ url_for('auth.change_email', token=token, _external=True) }}</p>
+<p>Cordialmente,</p>
+<p>The Userly Team</p>
+<p><small>Obs: respostas para esse endereço de e-mail não são monitoradas.</small></p>

@@ -3,9 +3,10 @@ from flask_login import login_user, logout_user, login_required, current_user
 
 from . import auth
 from .forms import LoginForm, RegistrationForm, ChangePasswordForm, PasswordResetRequestForm, PasswordResetForm, \
-    ChangeEmailForm
+    ChangeEmailForm, CepForm
 from .. import db
 from ..email import send_email
+from ..main.viacep_service import ViaCEP
 from ..models import User
 
 
@@ -27,9 +28,9 @@ def confirm(token):
         return redirect(url_for('main.index'))
     if current_user.confirm(token):
         db.session.commit()
-        flash('You have confirmed your account. Thanks!')
+        flash('Você confirmou sua conta. Obrigado!')
     else:
-        flash('The confirmation link is invalid or has expired.')
+        flash('O link de confirmação é inválido ou expirou.')
     return redirect(url_for('main.index'))
 
 
@@ -37,9 +38,9 @@ def confirm(token):
 @login_required
 def resend_confirmation():
     token = current_user.generate_confirmation_token()
-    send_email(current_user.email, 'Confirm Your Account',
+    send_email(current_user.email, 'Confirme sua conta',
                'auth/email/confirm', user=current_user, token=token)
-    flash('A new confirmation email has been sent to you by email.')
+    flash('Um novo e-mail de confirmação foi enviado para você por e-mail.')
     return redirect(url_for('main.index'))
 
 
@@ -61,7 +62,7 @@ def login():
             if next is None or not next.startswith('/'):
                 next = url_for('main.index')
             return redirect(next)
-        flash('Invalid email or password.')
+        flash('E-mail ou password inválidos.')
     return render_template('auth/login.html', form=form)
 
 
@@ -69,25 +70,45 @@ def login():
 @login_required
 def logout():
     logout_user()
-    flash('You have been logged out.')
+    flash('Você foi deslogado.')
     return redirect(url_for('main.index'))
 
 
 @auth.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegistrationForm()
-    if form.validate_on_submit():
-        user = User(email=form.email.data.lower(),
-                    username=form.username.data,
-                    password=form.password.data)
+    cep_form = CepForm()
+    if cep_form.submit_cep.data and cep_form.validate_on_submit():
+        viacep_service = ViaCEP(cep_form.cep.data)
+        endereco = viacep_service.buscar_cep()
+        form.logradouro.data = endereco.logradouro
+        form.bairro.data = endereco.bairro
+        form.cidade.data = endereco.cidade
+        form.uf.data = endereco.uf
+        form.ibge.data = endereco.ibge
+        form.complemento.data = endereco.complemento
+    if form.submit.data and form.validate_on_submit():
+        user = User(
+            email=form.email.data.lower(),
+            username=form.username.data,
+            password=form.password.data,
+            cep=cep_form.cep.data,
+            logradouro=form.logradouro.data,
+            bairro=form.bairro.data,
+            cidade=form.cidade.data,
+            uf=form.uf.data,
+            ibge=form.ibge.data,
+            complemento=form.complemento.data,
+            numero_casa=form.numero_casa.data
+        )
         db.session.add(user)
         db.session.commit()
         token = user.generate_confirmation_token()
-        send_email(user.email, 'Confirm Your Account',
+        send_email(user.email, 'Confirme sua conta',
                    'auth/email/confirm', user=user, token=token)
-        flash('A confirmation email has been sent to you by email.')
+        flash('Um e-mail de confirmação foi enviado para você por e-mail.')
         return redirect(url_for('auth.login'))
-    return render_template('auth/register.html', form=form)
+    return render_template('auth/register.html', form=form, cep_form=cep_form)
 
 
 @auth.route('/change-password', methods=['GET', 'POST'])
@@ -99,10 +120,10 @@ def change_password():
             current_user.password = form.password.data
             db.session.add(current_user)
             db.session.commit()
-            flash('Your password has been updated.')
+            flash('Sua senha foi atualizada.')
             return redirect(url_for('main.index'))
         else:
-            flash('Invalid password.')
+            flash('Senha inválida.')
     return render_template("auth/change_password.html", form=form)
 
 
@@ -115,11 +136,11 @@ def password_reset_request():
         user = User.query.filter_by(email=form.email.data.lower()).first()
         if user:
             token = user.generate_reset_token()
-            send_email(user.email, 'Reset Your Password',
+            send_email(user.email, 'Reset sua senha',
                        'auth/email/reset_password',
                        user=user, token=token)
-        flash('An email with instructions to reset your password has been '
-              'sent to you.')
+        flash('Um e-mail com instruções para resetar sua senha foi enviado '
+              'para você.')
         return redirect(url_for('auth.login'))
     return render_template('auth/reset_password.html', form=form)
 
@@ -132,7 +153,7 @@ def password_reset(token):
     if form.validate_on_submit():
         if User.reset_password(token, form.password.data):
             db.session.commit()
-            flash('Your password has been updated.')
+            flash('Sua senha foi atualizada.')
             return redirect(url_for('auth.login'))
         else:
             return redirect(url_for('main.index'))
@@ -147,14 +168,14 @@ def change_email_request():
         if current_user.verify_password(form.password.data):
             new_email = form.email.data.lower()
             token = current_user.generate_email_change_token(new_email)
-            send_email(new_email, 'Confirm your email address',
+            send_email(new_email, 'Confirme seu endereço de e-mail',
                        'auth/email/change_email',
                        user=current_user, token=token)
-            flash('An email with instructions to confirm your new email '
-                  'address has been sent to you.')
+            flash('Um e-mail com instruções para confirmar seu novo endereço '
+                  'de e-mail foi enviado para você.')
             return redirect(url_for('main.index'))
         else:
-            flash('Invalid email or password.')
+            flash('E-mail ou senha inválidos.')
     return render_template("auth/change_email.html", form=form)
 
 
@@ -163,7 +184,7 @@ def change_email_request():
 def change_email(token):
     if current_user.change_email(token):
         db.session.commit()
-        flash('Your email address has been updated.')
+        flash('Seu endereço de e-mail foi atualizado.')
     else:
-        flash('Invalid request.')
+        flash('Request inválida.')
     return redirect(url_for('main.index'))

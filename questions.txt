@@ -1,0 +1,21 @@
+1. A solução deve ser disponibilizada em Cloud ou On-premise?
+R: Para essa solução o estado da arte seria Cloud, onde essa solução vai receber as mensagens de todos os canais e
+servir para o suporte em local centralizado. E ao responder ao cliente, será emitido para todas as maneiras que o
+cliente deseja acompanhar através de mensageria.
+
+2. Considerando a participação de 4 pessoas técnicas para o desenvolvimento dessa
+solução, responda qual ferramenta acreditas ser apropriada para o controle de
+tarefas da equipe, a ferramenta é ágil?
+R: Hoje eu utilizaria o kanbanx.com, atende os cenários básicos para coordenação de um time. Sim, é uma ferramenta ágil,
+com foco na metodologia Kanban.
+
+3. Você se sente capaz de liderar esta equipe? Por quê?
+Sim, pois tenho contexto para lidar com desafios que essa solução pode vir a apresentar. E me sinto capacitado para
+evoluir o time e aprender com ele.
+
+4. Se pudesse sugerir uma melhoria, mudança ou oportunidade. O que seria?
+Acho que a maior oportunidade na idéia da solução, é implementar uma filtragem de chamados com chatbot.
+Para contextualizar o atendimento com mais velocidade, e o cliente não esperar muito caso um problema seja bem conhecido.
+
+5. Acha válido esse desafio para o processo que está participando?
+Achei interessante, talvez eu não amarrasse a notação dos diagramas pedidos.
